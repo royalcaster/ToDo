@@ -5,7 +5,7 @@ const Task = ({ id, title, theme, onChangeTitle, onDelete }) => {
 
     const handleDelete = () => {
         document.getElementById(id).classList.add("delete-task");
-        setTimeout(() => onDelete(id),300);
+        setTimeout(() => onDelete(id),300);                         //Delay, damit Animation sichtbar ist, bevor das ELement gelöscht wird
     }
     
     return (

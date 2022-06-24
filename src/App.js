@@ -33,6 +33,7 @@ function App() {
     thumb_color: "rgba(255,255,255,0.5)"
   }
 
+  //States für Farbschema und Aufgabenliste
   const [theme, setTheme] = useState(dark);
   const [tasks, setTasks] = useState([]);
 
@@ -57,7 +58,7 @@ function App() {
 
   //wechselt zu Dark-/Lightmode
   const onToggleTheme = () => {
-    /* Musste hier einen kleinen Umweg über das document-objekt einschlagen, 
+    /* Musste hier einen kleinen Umweg über das document-Objekt einschlagen, 
     um die Scrollbar dem Farbschema anzupassen,
     da man sie nicht über Inline-CSS ansprechen kann */
     if (theme.type == 'light') {
