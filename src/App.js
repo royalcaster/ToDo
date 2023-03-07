@@ -85,10 +85,6 @@ function App() {
       elements[i].classList.add("delete-task");
     }
     setTimeout(() => setTasks([]),200);
-    /* Mit setTimeout() zu arbeiten, ist selbstverständlich nicht "Best Practice",
-    aber ich wollte nicht erst noch eine Animations-Bibliothek mit ins Boot holen.
-    In React Native z.B. geben die Animationen einen Callback,
-    sobald diese fertig ausgeführt worden sind.*/
   }
 
   return (
