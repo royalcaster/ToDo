@@ -15,7 +15,7 @@ const Task = ({ id, title, theme, onChangeTitle, onDelete }) => {
             </div>
 
             <button className="button-done" onClick={() => handleDelete()}>
-                <i class="material-icons icon" style={{fontSize: "12pt", marginBottom: "2px"}}>&#xe5ca;</i>
+                <i className="material-icons icon" style={{fontSize: "12pt", marginBottom: "2px"}}>&#xe5ca;</i>
                 &nbsp;Done
             </button>
         </div>

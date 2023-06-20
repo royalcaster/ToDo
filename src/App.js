@@ -1,12 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 
 //eigene Komponenten
 import NavBar from './components/Navbar';
 import Task from './components/Task';
 import Done from './components/Done';
-
-//Package zum Generieren von IDs
 import uuid from 'react-uuid';
 
 
@@ -33,16 +31,26 @@ function App() {
     thumb_color: "rgba(255,255,255,0.5)"
   }
 
-  //States für Farbschema und Aufgabenliste
-  const [theme, setTheme] = useState(dark);
+  //States für Aufgabenliste und Farbschema
+  const [user, setUser] = useState()
   const [tasks, setTasks] = useState([]);
+  const [theme, setTheme] = useState(dark);
+
+  useEffect(() => {
+    checkForUser()
+  }, []);
 
   //fügt Neue Aufgabe an 0. Stelle im Tasks-Array hinzu
   const addTask = () => {
-    setTasks([{
-      id: uuid(),
-      title: "New task"
-    },...tasks]);
+    fetch('https://jsonplaceholder.typicode.com/users/1/todos')
+    .then((response) => response.json())
+    .then((json) => {
+      let userdata = json[getRandomInt(1,20)];
+      setTasks([{
+        id: uuid(),
+        title: userdata.title
+      },...tasks]);
+    });
   }
 
   //aktualisiert den Tasks-Array jedes mal, wenn eine Eingabe getätigt wird
@@ -61,7 +69,7 @@ function App() {
     /* Musste hier einen kleinen Umweg über das document-Objekt einschlagen, 
     um die Scrollbar dem Farbschema anzupassen,
     da man sie nicht über Inline-CSS ansprechen kann */
-    if (theme.type == 'light') {
+    if (theme.type === 'light') {
       setTheme(dark);
       document.documentElement.style.setProperty("--track_color", dark.track_color)
       document.documentElement.style.setProperty("--thumb_color", dark.thumb_color)
@@ -75,7 +83,7 @@ function App() {
 
   //löscht einzelne Aufgabe
   const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id != id));
+    setTasks(tasks.filter(task => task.id !== id));
   }
 
   //leert gesamten Tasks-Array
@@ -91,19 +99,93 @@ function App() {
     sobald diese fertig ausgeführt worden sind.*/
   }
 
+  const checkForUser = () => {
+
+    let username = getCookie("username")
+    let email = getCookie("email")
+
+    console.log(email)
+
+    if (username != null && email != null) {
+      setUser({
+        username: username,
+        email: email
+      })
+    }
+  }
+
+  const handleLogin = () => {
+    loadRandomUser()
+  }
+
+  const handleLogout = () => {
+    setUser(null)
+    deleteCookie("username");
+    deleteCookie("email")
+  }
+
+  const loadRandomUser = () => {
+    fetch('https://jsonplaceholder.typicode.com/users/' + getRandomInt(1,10))
+      .then(response => response.json())
+      .then(json => {
+        setUser(json);
+        document.cookie = "username=" + json.username + ";";
+        document.cookie = "email=" + json.email + ";";
+      })
+  }
+
+  function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getCookie(name) {
+    function escape(s) { return s.replace(/([.*+?\^$(){}|\[\]\/\\])/g, '\\$1'); }
+    var match = document.cookie.match(RegExp('(?:^|;\\s*)' + escape(name) + '=([^;]*)'));
+    return match ? match[1] : null;
+  }
+
+  var deleteCookie = function(name) {
+    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  };
+
   return (
     <div className="App" style={{backgroundColor: theme.background_color}}>
 
-      <NavBar theme={theme} onToggleTheme={onToggleTheme}/>
+      <NavBar user={user} theme={theme} onHandleLogin={handleLogin} onHandleLogout={handleLogout} onToggleTheme={onToggleTheme}/>
 
-      <button 
-        onClick={addTask}
-        className="button create-list">
-          <i className="material-icons icon">&#xe03b;</i>&nbsp;&nbsp;Add task
-      </button>
+      <div style={{display: "flex", flexDirection: "column"}}>
+
+        <div className="username_container" style={{flex: 1}}>
+            <p className="username" style={{color: theme.font_color_1}}>{user ? user.username : "Guest"}</p>
+            <br></br>
+            <p className="email" style={{color: theme.font_color_1}}>{user ? user.email : null}</p>
+        </div>
+
+        <div style={{flex: 1, display: "flex", flexDirection: "row", maxWidth: "700px", minWidth: "400px", alignSelf: "center"}}>
+          <div style={{flex: 1}}>
+            <button
+              onClick={addTask}
+              className="button create-list"
+              style={{color: theme.font_color_1}}>
+                <i className="material-icons icon">&#xe03b;</i>&nbsp;&nbsp;Add task
+            </button>
+          </div>
+
+          <div style={{flex: 1}}>
+            {tasks.length === 0 ? null 
+            : <button className='button clear-list' onClick={() => clearTasks()}>
+                <i className="material-icons icon" style={{marginBottom: "3px"}}>&#xe16c;</i>
+                &nbsp;Clear all
+            </button>}
+          </div>
+        </div>
+
+      </div>
 
       <div className="content-container">
-        {tasks.length == 0 ? <Done theme={theme}/> :
+        {tasks.length === 0 ? <Done theme={theme}/> :
           <>
             {tasks.map(task => {
               return <Task key={task.id} id={task.id} title={task.title} theme={theme} onChangeTitle={changeTitle} onDelete={deleteTask}/>
@@ -112,14 +194,8 @@ function App() {
         }
       </div>
 
-      {tasks.length == 0 ? null 
-      : <button className='button clear-list' onClick={() => clearTasks()}>
-          <i className="material-icons icon" style={{marginBottom: "3px"}}>&#xe16c;</i>
-          &nbsp;Clear all
-      </button>}
-
       <p style={{color: theme.font_color_2, position: "absolute", bottom: 0, left: 30, fontSize: "10pt"}}>
-        &copy; Gabriel Pechstein 2022
+        &copy; Gabriel Pechstein 2023
       </p>
 
     </div>

@@ -7,8 +7,8 @@
   font-family: "Roboto";
   height: 100%;
   width: 100%;
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 0px;
   position: absolute;
   overflow: hidden;
   user-select: none;
@@ -168,6 +168,26 @@
 @keyframes slide2 {
   from {transform: translate(-50%,200%); opacity: 0;}
   to {transform: translate(-50%,-50%); opacity: 1;}
+}
+
+.username_container {
+  margin: 20px;
+  text-align: center;
+}
+
+.username {
+  display: inline;
+  color: white;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+}
+
+.email {
+  display: inline;
+  color: white;
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  margin-left: 10px;
 }
 
 /** Custom Scrollbar für beide Themes
